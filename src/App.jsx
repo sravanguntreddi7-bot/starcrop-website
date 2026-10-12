@@ -26,7 +26,8 @@ function App() {
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         position: 'sticky',
         top: 0,
-        zIndex: 1000
+        zIndex: 1000,
+        gap: '10px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigateTo('home')}>
           <img src="/logo-vertical.png" alt="Star Crop" style={{ height: '45px', width: 'auto' }} />
@@ -34,12 +35,33 @@ function App() {
             STAR CROP
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap' }}>
+
+        <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap', alignItems: 'center' }}>
           <a onClick={() => navigateTo('home')} style={{ color: 'white', textDecoration: 'none', fontWeight: '500', cursor: 'pointer' }}>Home</a>
           <a onClick={() => navigateTo('home')} style={{ color: 'white', textDecoration: 'none', fontWeight: '500', cursor: 'pointer' }}>Products</a>
           <a onClick={() => navigateTo('about')} style={{ color: 'white', textDecoration: 'none', fontWeight: '500', cursor: 'pointer' }}>About</a>
           <a onClick={() => navigateTo('dealers')} style={{ color: 'white', textDecoration: 'none', fontWeight: '500', cursor: 'pointer' }}>Dealers</a>
           <a onClick={() => navigateTo('contact')} style={{ color: 'white', textDecoration: 'none', fontWeight: '500', cursor: 'pointer' }}>Contact</a>
+
+          {/* Call Now Button */}
+          <a
+            href="tel:+919852519999"
+            style={{
+              backgroundColor: '#e8611a',
+              color: 'white',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+              padding: '8px 18px',
+              borderRadius: '25px',
+              fontSize: '0.95rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            📞 98525 19999
+          </a>
         </div>
       </nav>
 
@@ -80,27 +102,73 @@ function App() {
       {/* Footer */}
       <footer style={{ backgroundColor: '#2d7a2d', color: 'white', padding: '40px 20px 20px 20px', marginTop: '50px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '30px' }}>
+
           <div>
             <img src="/logo-vertical.png" alt="Star Crop" style={{ height: '60px', width: 'auto', marginBottom: '10px', filter: 'brightness(0) invert(1)' }} />
             <p style={{ fontSize: '0.9rem', lineHeight: '1.6', marginTop: '10px' }}>Growing Quality, Harvesting Trust</p>
           </div>
+
           <div>
             <h4 style={{ marginBottom: '15px', fontSize: '1.1rem' }}>📍 Address</h4>
             <p style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
               Gangaregualasa (Vill & PO),<br />Komarada Mandal,<br />Paravathipuram Manyam Dist.
             </p>
           </div>
+
+          <div>
+            <h4 style={{ marginBottom: '15px', fontSize: '1.1rem' }}>📞 Contact</h4>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.8' }}>
+              <a href="tel:+919852519999" style={{ color: 'white', textDecoration: 'none' }}>
+                📱 +91 98525 19999
+              </a>
+              <br />
+              <a href="mailto:info@starcropagro.com" style={{ color: 'white', textDecoration: 'none' }}>
+                ✉️ info@starcropagro.com
+              </a>
+            </p>
+          </div>
+
           <div>
             <h4 style={{ marginBottom: '15px', fontSize: '1.1rem' }}>🌾 Coverage</h4>
             <p style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
               Telangana<br />Andhra Pradesh<br />Karnataka<br />Tamil Nadu
             </p>
           </div>
+
         </div>
+
         <div style={{ textAlign: 'center', marginTop: '30px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '0.85rem' }}>
           © {new Date().getFullYear()} Star Crop AgroChemicals. All Rights Reserved.
         </div>
       </footer>
+
+      {/* Floating WhatsApp Button */}
+      <a
+        href="https://wa.me/919852519999?text=Hello%20Star%20Crop%20AgroChemicals%2C%20I%20am%20interested%20in%20your%20products."
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          position: 'fixed',
+          bottom: '25px',
+          right: '25px',
+          backgroundColor: '#25D366',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+          zIndex: 9999,
+          textDecoration: 'none'
+        }}
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+          alt="WhatsApp"
+          style={{ width: '35px', height: '35px' }}
+        />
+      </a>
     </div>
   );
 }

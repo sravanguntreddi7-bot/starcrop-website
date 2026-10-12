@@ -1,18 +1,43 @@
-import React, { useState } from 'react';
-import { products } from './products';
+import React, { useState, useEffect } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './firebase';
 
 function ProductCatalogue() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
-  // Get unique categories for filter buttons
-  const categories = ['All', ...new Set(products.map(p => p.category))];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        console.log('Fetching from Firebase...');
+        const querySnapshot = await getDocs(collection(db, "products"));
+        console.log('Documents found:', querySnapshot.size);
+        const productList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        console.log('Loaded:', productList.length, 'products');
+        setProducts(productList);
+      } catch (err) {
+        console.error('Firebase error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Filter products based on search and category
+    fetchProducts();
+  }, []);
+
+  const categories = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+
   const filteredProducts = products.filter(product => {
-    const matchesSearch = 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.technical.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      (product.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.technical || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -20,11 +45,21 @@ function ProductCatalogue() {
   return (
     <div style={{ padding: '40px 20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', color: '#166534', marginBottom: '10px' }}>Our Products</h2>
-      <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>
+      <p style={{ textAlign: 'center', color: '#666', marginBottom: '10px' }}>
         Crop protection solutions for every stage of farming
       </p>
+      <p style={{ textAlign: 'center', color: '#166534', marginBottom: '30px', fontWeight: 'bold', fontSize: '18px' }}>
+        Total Products: {loading ? '...' : products.length}
+      </p>
 
-      {/* Search Bar */}
+      {loading && (
+        <p style={{ textAlign: 'center', color: '#166534', fontSize: '18px' }}>Loading from Firebase...</p>
+      )}
+
+      {error && (
+        <p style={{ textAlign: 'center', color: 'red', fontSize: '16px' }}>Error: {error}</p>
+      )}
+
       <div style={{ marginBottom: '20px', textAlign: 'center' }}>
         <input
           type="text"
@@ -43,7 +78,6 @@ function ProductCatalogue() {
         />
       </div>
 
-      {/* Category Filters */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '30px', flexWrap: 'wrap' }}>
         {categories.map(cat => (
           <button
@@ -64,7 +98,6 @@ function ProductCatalogue() {
         ))}
       </div>
 
-      {/* Product Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
         {filteredProducts.map(product => (
           <div key={product.id} style={{
@@ -93,8 +126,8 @@ function ProductCatalogue() {
         ))}
       </div>
 
-      {filteredProducts.length === 0 && (
-        <p style={{ textAlign: 'center', color: '#999', marginTop: '40px' }}>No products found.</p>
+      {!loading && filteredProducts.length === 0 && products.length > 0 && (
+        <p style={{ textAlign: 'center', color: '#999', marginTop: '40px' }}>No products match your filter.</p>
       )}
     </div>
   );

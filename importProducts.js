@@ -1,0 +1,210 @@
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCLoqD-pRW0paYWFaW_0S00-9iFPizTOos",
+  authDomain: "starcrop-agro.firebaseapp.com",
+  projectId: "starcrop-agro",
+  storageBucket: "starcrop-agro.firebasestorage.app",
+  messagingSenderId: "817975803331",
+  appId: "1:817975803331:web:07a0a07b9a39ab24401176",
+  measurementId: "G-F5J7J858LZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const products = [
+  { name: "Star Clean", technical: "2,4-D Amine Salt 58% SL", category: "Herbicide", description: "Selective herbicide for broadleaf weed control in cereals." },
+  { name: "Starmycin", technical: "Abamectin 1.9% EC", category: "Insecticide", description: "Broad spectrum insecticide for control of mites and leafminers." },
+  { name: "Starlene", technical: "Acephate 75% SP", category: "Insecticide", description: "Systemic insecticide for control of sucking and chewing pests." },
+  { name: "Starprid", technical: "Acetamiprid 20% SP", category: "Insecticide", description: "Systemic insecticide for control of sucking pests in various crops." },
+  { name: "Bouncer", technical: "Acetamiprid 1.1% + Cypermethrin 5.5% W/W EC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Starlene Gold", technical: "Acephate 50% + Imidacloprid 1.8% SP", category: "Insecticide", description: "Systemic insecticide for control of sucking pests and borers." },
+  { name: "Status", technical: "Alphacypermethrin 10% SC", category: "Insecticide", description: "Contact insecticide for control of lepidopteran pests." },
+  { name: "Starmera-71SG", technical: "Ammonium Salt of Glyphosate 71% SG", category: "Herbicide", description: "Non-selective systemic herbicide for weed control." },
+  { name: "Starzine", technical: "Atrazine 50% WP", category: "Herbicide", description: "Selective herbicide for control of grasses and broadleaf weeds." },
+  { name: "Stardiosc", technical: "Azoxystrobin 11% + Tebuconazole 18.3% w/w SC", category: "Fungicide", description: "Combination fungicide for control of various fungal diseases." },
+  { name: "Agiter", technical: "Azoxystrobin 11.5% + Mancozeb 30% w/w WP", category: "Fungicide", description: "Protective and curative fungicide for disease control." },
+  { name: "Stardioplus", technical: "Azoxystrobin 12.5% + Tebuconazole 12.5% SC", category: "Fungicide", description: "Broad spectrum systemic fungicide for crop disease management." },
+  { name: "Stozoxyssc", technical: "Azoxystrobin 23% SC", category: "Fungicide", description: "Systemic fungicide for control of rust, blight, and powdery mildew." },
+  { name: "Agiter Plus", technical: "Azoxystrobin 8.3% + Mancozeb 66.7% WG", category: "Fungicide", description: "Water dispersible granule fungicide for broad spectrum control." },
+  { name: "Stareagle", technical: "Bifenthrin 10% EC w/w", category: "Insecticide", description: "Contact insecticide for control of termites and soil pests." },
+  { name: "Star Gold", technical: "Bispyribac Sodium 10% w/v SC", category: "Herbicide", description: "Selective post-emergence herbicide for rice weed control." },
+  { name: "Starlene Gold+", technical: "Buprofenzin 15% + Acephate 35% WP", category: "Insecticide", description: "Combination insecticide for control of sucking pests and hoppers." },
+  { name: "Starlene Active", technical: "Buprofenzin 20% + Acephate 50% (w/w) WP", category: "Insecticide", description: "Broad spectrum insecticide for pest management." },
+  { name: "Starzeb-CM", technical: "Carbendazim 12% + Mancozeb 63% WP", category: "Fungicide", description: "Combination fungicide for control of blight, rust, and leaf spot." },
+  { name: "Starfuran 3G", technical: "Carbofuran 3% CG", category: "Insecticide", description: "Soil insecticide for control of nematodes and soil-borne pests." },
+  { name: "Crop Stin-WP", technical: "Carbendazim 50% WP", category: "Fungicide", description: "Systemic fungicide for control of various fungal diseases." },
+  { name: "Crop Stin-SC", technical: "Carbendazim 46.27% SC", category: "Fungicide", description: "Suspension concentrate fungicide for disease control." },
+  { name: "Steldon-4G", technical: "Cartap Hydrochloride 4% GR", category: "Insecticide", description: "Granular insecticide for control of stem borers and leaf folders." },
+  { name: "Steldon-75G", technical: "Cartap Hydrochloride 75% SG", category: "Insecticide", description: "Water soluble granule insecticide for pest control." },
+  { name: "Steldon-50 SP", technical: "Cartap Hydrochloride 50% SP", category: "Insecticide", description: "Soluble powder insecticide for control of chewing pests." },
+  { name: "Steldon-501 WP", technical: "Cartap Hydrochloride 50% + Buprofezin 10% WP", category: "Insecticide", description: "Combination insecticide for control of hoppers and borers." },
+  { name: "Strozen-GR", technical: "Chlorantraniliprole 0.4% w/w GR", category: "Insecticide", description: "Granular insecticide for control of stem borers in rice." },
+  { name: "Strozen-SC", technical: "Chlorantraniliprole 18.5% w/w SC", category: "Insecticide", description: "Systemic insecticide for control of lepidopteran pests." },
+  { name: "Starcin-SC", technical: "Chlorantraniliprole 4.3% w/w + Abamectin 1.7% w/w SC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Star Don-DP", technical: "Chlorpyriphos 1.5% DP", category: "Insecticide", description: "Dust formulation for control of soil insects and termites." },
+  { name: "Star Bon", technical: "Chlorpyriphos 20% EC", category: "Insecticide", description: "Contact and stomach insecticide for control of various pests." },
+  { name: "Star Bon-CS", technical: "Chlorpyriphos 20% CS", category: "Insecticide", description: "Capsule suspension insecticide for long-lasting control." },
+  { name: "Chlorex-10 GR", technical: "Chlorpyriphos 10% GR", category: "Insecticide", description: "Granular insecticide for soil pest control." },
+  { name: "Star Bon Plus", technical: "Chlorpyrifos 50% EC", category: "Insecticide", description: "Concentrated insecticide for control of soil and foliar pests." },
+  { name: "Starphos-505", technical: "Chlorpyriphos 50% + Cypermethrin 5% EC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Stybex-COC", technical: "Copper Oxychloride 50% w/w WP", category: "Fungicide", description: "Protective fungicide for control of bacterial and fungal diseases." },
+  { name: "Starml-CM", technical: "Cymoxanil 8% + Mancozeb 64% WP", category: "Fungicide", description: "Combination fungicide for control of downy mildew." },
+  { name: "Vikram-10EC", technical: "Cypermethrin 10% EC", category: "Insecticide", description: "Contact insecticide for control of various insect pests." },
+  { name: "Vikram Plus", technical: "Cypermethrin 25% EC", category: "Insecticide", description: "Concentrated insecticide for broad spectrum control." },
+  { name: "Legend", technical: "Diafenthiuron 50% WP", category: "Insecticide", description: "Insecticide for control of mites and sucking pests." },
+  { name: "Legend Plus", technical: "Diafenthiuron 40.1% + Acetamiprid 3.9% WP", category: "Insecticide", description: "Combination insecticide for control of mites and sucking pests." },
+  { name: "Stogor", technical: "Dimethoate 30% EC", category: "Insecticide", description: "Systemic insecticide for control of sucking pests." },
+  { name: "Claimgent", technical: "Emamectin Benzoate 1.5% + Fipronil 3.5% SC", category: "Insecticide", description: "Combination insecticide for control of lepidopteran pests." },
+  { name: "Starklaim", technical: "Emamectin Benzoate 5% SG", category: "Insecticide", description: "Water soluble granule insecticide for pest control." },
+  { name: "Cobra", technical: "Emamectin Benzoate 1.9% EC", category: "Insecticide", description: "Insecticide for control of caterpillars and borers." },
+  { name: "Star Mite Plus-405", technical: "Ethion 40% + Cypermethrin 5% EC", category: "Insecticide", description: "Combination insecticide for control of mites and insects." },
+  { name: "Star Mite", technical: "Ethion 50% EC", category: "Insecticide", description: "Acaricide and insecticide for control of mites and scales." },
+  { name: "Growpon", technical: "Ethephon 39% SL", category: "PGR", description: "Plant growth regulator for uniform ripening and harvesting." },
+  { name: "Starbose", technical: "Fenpropathrin 10% EC", category: "Insecticide", description: "Contact insecticide for control of mites and sucking pests." },
+  { name: "Starbose Plus", technical: "Fenpropathrin 30% EC", category: "Insecticide", description: "Concentrated insecticide for broad spectrum control." },
+  { name: "Strafen-DP", technical: "Fenvalerate 0.4% DP", category: "Insecticide", description: "Dust formulation for control of agricultural pests." },
+  { name: "Strafen-EC", technical: "Fenvalerate 20% EC", category: "Insecticide", description: "Insecticide for control of chewing and sucking pests." },
+  { name: "Stargent-GR", technical: "Fipronil 0.3% GR", category: "Insecticide", description: "Granular insecticide for control of stem borers and soil pests." },
+  { name: "Stargent Plus-WG", technical: "Fipronil 80% WG", category: "Insecticide", description: "Water dispersible granule insecticide for pest control." },
+  { name: "Stargent-SC", technical: "Fipronil 5% SC", category: "Insecticide", description: "Suspension concentrate insecticide for crop protection." },
+  { name: "Stoplo-404 WG", technical: "Fipronil 40% + Imidacloprid 40% WG", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Starmeera-SL", technical: "Glufosinate Ammonium 13.5% w/w SL", category: "Herbicide", description: "Non-selective contact herbicide for weed control." },
+  { name: "Starcel-SL", technical: "Glyphosate 41% SL", category: "Herbicide", description: "Non-selective systemic herbicide for total weed control." },
+  { name: "Stargibra-L", technical: "Gibberellic Acid 0.001% L", category: "PGR", description: "Plant growth regulator for enhancing growth and yield." },
+  { name: "Startaf-EC", technical: "Hexaconazole 5% EC", category: "Fungicide", description: "Systemic fungicide for control of powdery mildew and rust." },
+  { name: "Startaf-SC", technical: "Hexaconazole 5% SC", category: "Fungicide", description: "Suspension concentrate fungicide for disease control." },
+  { name: "Startaf-75WG", technical: "Hexaconazole 75% WG", category: "Fungicide", description: "Water dispersible granule fungicide for systemic control." },
+  { name: "Starsuit-SL", technical: "Imazethapyr 10% SL", category: "Herbicide", description: "Selective herbicide for control of broadleaf weeds in pulses." },
+  { name: "Starimida-SL", technical: "Imidacloprid 17.8% SL", category: "Insecticide", description: "Systemic insecticide for control of sucking pests." },
+  { name: "Starimida-SC", technical: "Imidacloprid 30.5% SC", category: "Insecticide", description: "Suspension concentrate insecticide for pest control." },
+  { name: "Starimida-WG", technical: "Imidacloprid 70% WG", category: "Insecticide", description: "Water dispersible granule insecticide for systemic control." },
+  { name: "Starmela-SL", technical: "Imidacloprid 6% + Lambda Cyhalothrin 4% SL", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Stardont Plus", technical: "Indoxacarb 14.5% + Acetamiprid 7.7% w/w SC", category: "Insecticide", description: "Combination insecticide for control of caterpillars and sucking pests." },
+  { name: "Star King-SC", technical: "Indoxacarb 14.5% SC", category: "Insecticide", description: "Insecticide for control of lepidopteran pests in vegetables." },
+  { name: "Starcel-54", technical: "IPA Salt of Glyphosate 54% SL", category: "Herbicide", description: "Systemic herbicide for non-selective weed control." },
+  { name: "Saviour-CS", technical: "Lambdacyhalothrin 4.9% Capsule Suspension", category: "Insecticide", description: "Capsule suspension insecticide for long-lasting control." },
+  { name: "Savior", technical: "Lambdacyhalothrin 2.5% EC", category: "Insecticide", description: "Contact insecticide for control of various insect pests." },
+  { name: "Starwar", technical: "Lambdacyhalothrin 5% EC", category: "Insecticide", description: "Insecticide for broad spectrum pest control." },
+  { name: "Scabon-DP", technical: "Malathion 5% DP", category: "Insecticide", description: "Dust formulation for control of agricultural pests." },
+  { name: "Scabon-EC", technical: "Malathion 50% EC", category: "Insecticide", description: "Insecticide for control of sucking and chewing pests." },
+  { name: "Starzeb-M45", technical: "Mancozeb 75% WP", category: "Fungicide", description: "Protective fungicide for control of blight, rust, and downy mildew." },
+  { name: "Starmeta-WS", technical: "Metalaxyl 35% WS", category: "Fungicide", description: "Seed treatment fungicide for control of soil-borne diseases." },
+  { name: "Stabuzin-WP", technical: "Metribuzin 70% WP", category: "Herbicide", description: "Selective herbicide for control of grasses and broadleaf weeds." },
+  { name: "Starcron", technical: "Monocrotophos 36% SL", category: "Insecticide", description: "Systemic insecticide for control of sucking and chewing pests." },
+  { name: "Starcron-SG", technical: "Monocrotophos 15% w/w SG", category: "Insecticide", description: "Water soluble granule insecticide for pest control." },
+  { name: "Starwhale", technical: "Myclobutanil 10% WP", category: "Fungicide", description: "Systemic fungicide for control of powdery mildew and rust." },
+  { name: "Staraza 0.03", technical: "Neem Oil Based EC containing Azadirachtin 0.03% (300 PPM)", category: "Bio", description: "Botanical insecticide for control of various pests." },
+  { name: "Staraza 0.15", technical: "Neem Seed Kernel Based EC Containing Azadirachtin 0.15% (1500 PPM)", category: "Bio", description: "Concentrated botanical insecticide for pest control." },
+  { name: "Starmon-EC", technical: "Novaluron 10% EC", category: "Insecticide", description: "Insect growth regulator for control of caterpillars." },
+  { name: "Starmon Plus-SC", technical: "Novaluron 5.25% + Indoxacarb 4.5% w/w SC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Staroxy-EC", technical: "Oxyflourfen 23.5% EC (w/w)", category: "Herbicide", description: "Selective herbicide for control of broadleaf weeds." },
+  { name: "Jolice SC", technical: "Paclobutrazol 23% W/W SC", category: "PGR", description: "Plant growth regulator for vegetative growth control." },
+  { name: "Jolice Plus", technical: "Paclobutrazole 40% SC", category: "PGR", description: "Concentrated plant growth regulator for crop management." },
+  { name: "Stargency", technical: "Paraquate Dichloride 24% SL", category: "Herbicide", description: "Contact herbicide for non-selective weed control." },
+  { name: "Stoxylen", technical: "Pendimethalin 30% EC", category: "Herbicide", description: "Selective pre-emergence herbicide for weed control." },
+  { name: "Stoxylen Plus", technical: "Pendimethalin 30% + Imazethapyr 2% EC", category: "Herbicide", description: "Combination herbicide for broad spectrum weed control." },
+  { name: "Stoxylen-CS", technical: "Pendimethalin 38.7% CS", category: "Herbicide", description: "Capsule suspension herbicide for long-lasting weed control." },
+  { name: "Permistar-EC", technical: "Permethrin 25% EC", category: "Insecticide", description: "Contact insecticide for control of agricultural pests." },
+  { name: "Starfit", technical: "Pretilachlor 50% EC", category: "Herbicide", description: "Selective herbicide for control of weeds in rice." },
+  { name: "Starfit-EW", technical: "Pretilachlor 37% w/w EW", category: "Herbicide", description: "Emulsion water oil herbicide for rice weed control." },
+  { name: "Starpro-Plus", technical: "Profenofos 40% + Cypermethrin 4% EC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Strocal", technical: "Propineb 70% WP", category: "Fungicide", description: "Protective fungicide for control of various fungal diseases." },
+  { name: "Starproxy", technical: "Pyriproxyfen 10% EC", category: "Insecticide", description: "Insect growth regulator for control of sucking pests." },
+  { name: "Starproxy Plus", technical: "Pyriproxyfen 5% + Diafenthiuron 25% SE", category: "Insecticide", description: "Combination insecticide for control of whiteflies and sucking pests." },
+  { name: "Scess-WG", technical: "Pymetrozine 50% WG", category: "Insecticide", description: "Systemic insecticide for control of sucking pests." },
+  { name: "Star Sulpha-WGD", technical: "Sulphur 80% WDG", category: "Fungicide", description: "Water dispersible granule fungicide for disease control." },
+  { name: "Star Sulpha-DP", technical: "Sulphur 85% DP", category: "Fungicide", description: "Dust formulation for control of powdery mildew." },
+  { name: "Starmax-WG", technical: "Thiamethoxam 25% WG", category: "Insecticide", description: "Systemic insecticide for control of sucking pests." },
+  { name: "Starmax Plus-SG", technical: "Thiamethoxam 75% w/w SG", category: "Insecticide", description: "Water soluble granule insecticide for pest control." },
+  { name: "Starmavior-ZC", technical: "Thiamethoxam 12.6% + Lambdacyhalothrin 9.5% ZC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Star Pulse-SC", technical: "Thifluzamide 24% SC", category: "Fungicide", description: "Systemic fungicide for control of sheath blight in rice." },
+  { name: "Thiostar-WP", technical: "Thiophanate Methyl 70% WP", category: "Fungicide", description: "Systemic fungicide for control of various fungal diseases." },
+  { name: "Starzole-WP", technical: "Tricyclazole 75% WP", category: "Fungicide", description: "Systemic fungicide for control of blast disease in rice." },
+  { name: "Starcount-EW", technical: "Triacontanol EW 0.1% MIN", category: "PGR", description: "Plant growth regulator for enhancing crop yield." },
+  { name: "String", technical: "Azoxystrobin 16.7% + Tricyclazole 33.3% SC", category: "Fungicide", description: "Combination fungicide for control of rice diseases." },
+  { name: "Topo-SC", technical: "Azoxystrobin 18.2% w/w + Difenoconazole 11.4% w/w SC", category: "Fungicide", description: "Broad spectrum fungicide for disease management." },
+  { name: "Star Gracy", technical: "Buprofezin 23.1% w/w + Fipronil 3.85% w/w SC", category: "Insecticide", description: "Combination insecticide for control of hoppers and borers." },
+  { name: "Star Prole-SC", technical: "Chlorantraniliprole 8.8% + Thiamethoxam 17.5% SC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Star Amigo-ZC", technical: "Chlorantraniliprole 9.3% + Lambdacyhalothrin 4.6% ZC", category: "Insecticide", description: "Broad spectrum insecticide for controlling lepidopteran pests." },
+  { name: "Starban++", technical: "Chlorpyrifos 16% + Alphacypermethrin 1% E.C", category: "Insecticide", description: "Combination insecticide for soil and foliar pest control." },
+  { name: "Star Killer", technical: "Diafenthiuron 47% + Bifenthrin 9.4% SC", category: "Insecticide", description: "Combination insecticide for control of mites and sucking pests." },
+  { name: "Star Dinote+", technical: "Dinotefuran 5% + Ethion 50% EC", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Star Dinote Active", technical: "Dinotefuran 15% + Pymetrozine 45% WG", category: "Insecticide", description: "Combination insecticide for control of sucking pests." },
+  { name: "Star Dinote", technical: "Dinotefuran 20% w/w SG", category: "Insecticide", description: "Systemic insecticide for control of sucking pests." },
+  { name: "Star Victim WG", technical: "Emamectin Benzoate 3.0% + Thiamethoxam 12.0% WG", category: "Insecticide", description: "Combination insecticide for broad spectrum pest control." },
+  { name: "Star Pyrox", technical: "Fenpyroximate 5% EC", category: "Insecticide", description: "Acaricide for control of mites in various crops." },
+  { name: "Star Sahana-SC", technical: "Fipronil 4% + Acetamiprid 4% SC", category: "Insecticide", description: "Combination insecticide for control of sucking pests." },
+  { name: "Stargent-SC Plus", technical: "Fipronil 4% w/w + Thiamethoxam 4% w/w SC", category: "Insecticide", description: "Combination insecticide for broad spectrum control." },
+  { name: "Star King-IF", technical: "Indoxacarb 5% + Fipronil 5% SC", category: "Insecticide", description: "Combination insecticide for control of caterpillars." },
+  { name: "Star Halorious", technical: "Mesotrione 2.27% + Atrazine 22.7% SC", category: "Herbicide", description: "Combination herbicide for weed control in maize." },
+  { name: "Star Weed-MC", technical: "Metsulfuron Methyl 10% w/w + Chlorimuron Ethyl 10% WP", category: "Herbicide", description: "Combination herbicide for broad spectrum weed control." },
+  { name: "Star Flowerise", technical: "Nitrobenzene 20% EW", category: "PGR", description: "Plant growth regulator for enhancing flowering and yield." },
+  { name: "Stopper-SC", technical: "Novaluron 5.25% + Emamectin Benzoate 9% w/w SC", category: "Insecticide", description: "Combination insecticide for control of caterpillars." },
+  { name: "Star Penox-PC", technical: "Penoxsulam 1.02% + Cyhalofop-Butyl 5.1% OD", category: "Herbicide", description: "Combination herbicide for weed control in rice." },
+  { name: "Star Penox-OD", technical: "Penoxsulam 2.67% w/w OD", category: "Herbicide", description: "Oil dispersion herbicide for rice weed control." },
+  { name: "Star Findal", technical: "Phenthoate 50% E.C", category: "Insecticide", description: "Contact insecticide for control of various pests." },
+  { name: "Star Pro", technical: "Profenophos 50% EC", category: "Insecticide", description: "Insecticide for control of sucking and chewing pests." },
+  { name: "Star Pythozole-WG", technical: "Pymetrozine 25.0% + Thiamethoxam 17.5% + Hexaconazole 12.5% WG", category: "Insecticide", description: "Triple combination for pest and disease control." },
+  { name: "Star Pyri-SC", technical: "Pyriproxyfen 8% + Dinotefuran 5% + Diafenthiuron 18% SC", category: "Insecticide", description: "Triple combination for control of sucking pests." },
+  { name: "Star Tubucol", technical: "Tebuconazole 25.9% E.C.", category: "Fungicide", description: "Systemic fungicide for control of various fungal diseases." },
+  { name: "Star Kill-SC", technical: "Tembotrione 34.4% w/w SC", category: "Herbicide", description: "Selective herbicide for weed control in maize." },
+  { name: "Star Max-FS", technical: "Thiamethoxam 30% FS", category: "Insecticide", description: "Seed treatment insecticide for early season protection." },
+  { name: "Star Guard", technical: "Tolfenpyrad 15% EC", category: "Insecticide", description: "Insecticide for control of sucking pests and thrips." },
+  { name: "Star Maize-SC", technical: "Topramezone 336g/L SC", category: "Herbicide", description: "Selective herbicide for post-emergence weed control in maize." },
+  { name: "Star Zole-SC", technical: "Tricyclazole 18.0% + Tebuconazole 14.4% SC", category: "Fungicide", description: "Combination fungicide for control of rice diseases." },
+  { name: "Star Mycin", technical: "Natural Product", category: "Bio", description: "100% Chemical Free Eco friendly Natural Product for fungal and bacterial disease control." },
+  { name: "Star Green Granules", technical: "Bio Organic Manure", category: "Bio", description: "High performance manure product of bio-organic origin." },
+  { name: "StarMin-Zn 12%", technical: "Zinc Sulphate Monohydrate 33% Zn, 3-15% Mn, Purity 95%", category: "Bio", description: "Micro nutrient fertilizer for soil, foliar, and drip application." },
+  { name: "Star Mag", technical: "Magnesium Sulphate 99%", category: "Bio", description: "Magnesium supplement for crops." },
+  { name: "Prom", technical: "Plant Biostimulant Soil Conditioner", category: "Bio", description: "Plant biostimulant and soil conditioner for improved soil health." },
+  { name: "Star Petero GR", technical: "Bio Organic Granules", category: "Bio", description: "Naturally derived organic product with nutrients and proteins." },
+  { name: "StarMax", technical: "Micro Nutrient Fertilizer Soil Application Formula-7", category: "Bio", description: "Complete micro nutrient fertilizer for soil application." },
+  { name: "Star Grow", technical: "Humic Acid 33% V/V", category: "Bio", description: "Humic acid based growth promoter for crops." },
+  { name: "Vajra", technical: "Naturally Derived Organic Product", category: "Bio", description: "A naturally derived organic product for crop growth." },
+  { name: "Toofan", technical: "Vegetable Special", category: "Bio", description: "Special formulation for vegetable crops." },
+  { name: "Star Beat", technical: "Naturally Derived Organic Product", category: "Bio", description: "A naturally derived organic product for crop improvement." },
+  { name: "Blossom", technical: "Nitro Benzene 20%", category: "PGR", description: "Plant growth regulator for enhancing flowering." },
+  { name: "Super Worm", technical: "Bio Organic Product", category: "Bio", description: "Organic product for soil health improvement." },
+  { name: "Planix", technical: "Bio Organic Product", category: "Bio", description: "Organic growth promoter for crops." },
+  { name: "Star Raksha", technical: "Bio Organic Product", category: "Bio", description: "Organic crop protection product." },
+  { name: "Advance Active", technical: "Nitro Benzene 20%", category: "PGR", description: "Plant growth regulator for enhanced crop growth." },
+  { name: "S-Core", technical: "Bio Organic Product", category: "Bio", description: "Organic product for crop health." },
+  { name: "Green Leaf", technical: "Natural Product", category: "Bio", description: "Natural product for crop nutrition." },
+  { name: "One Shot Active+", technical: "Bio Organic Product", category: "Bio", description: "Complete organic solution for crops." },
+  { name: "S-Dega", technical: "Nitro Benzene 20%", category: "PGR", description: "Plant growth regulator for crop enhancement." },
+  { name: "Spread", technical: "An Agriculture Spreading Agent", category: "Bio", description: "Spreading agent for better spray coverage." },
+  { name: "Star Eclipse", technical: "For All Crops", category: "Bio", description: "Multi-purpose crop care product." },
+  { name: "Star Max-Zn 33%", technical: "Zinc Sulphate Monohydrate 33% Zn", category: "Bio", description: "Zinc supplement for correcting zinc deficiency." },
+];
+
+async function uploadProducts() {
+  console.log(`Starting upload of ${products.length} products...`);
+  console.log("=====================================");
+  
+  let successCount = 0;
+  let errorCount = 0;
+
+  for (let i = 0; i < products.length; i++) {
+    const product = products[i];
+    try {
+      await addDoc(collection(db, "products"), product);
+      successCount++;
+      console.log(`✅ [${i + 1}/${products.length}] Added: ${product.name}`);
+    } catch (error) {
+      errorCount++;
+      console.error(`❌ [${i + 1}/${products.length}] Failed: ${product.name}`, error.message);
+    }
+  }
+
+  console.log("=====================================");
+  console.log(`🎉 Upload Complete!`);
+  console.log(`✅ Success: ${successCount}`);
+  console.log(`❌ Failed: ${errorCount}`);
+  console.log(`Total: ${products.length}`);
+  process.exit(0);
+}
+
+uploadProducts();
